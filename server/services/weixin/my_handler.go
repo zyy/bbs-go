@@ -3,6 +3,8 @@ package weixin
 import (
 	"github.com/chanxuehong/wechat/mp/core"
 	"github.com/chanxuehong/wechat/mp/message/callback/request"
+
+	"github.com/mlogclub/bbs-go/services"
 )
 
 type MyHandler struct{}
@@ -26,8 +28,38 @@ func (m MyHandler) ServeMsg(ctx *core.Context) {
 
 // 关注事件
 func (MyHandler) HandleSubscribe(ctx *core.Context) {
-	// msg := request.GetSubscribeEvent(ctx.MixedMsg)
 	weixinLog.Info(string(ctx.MsgPlaintext))
+
+	msg := request.GetSubscribeEvent(ctx.MixedMsg)
+	var (
+		openId     = msg.FromUserName
+		sceneId, _ = msg.Scene()
+	)
+	if len(sceneId) > 0 {
+		weixinLog.Info("自然关注量...", openId)
+		return
+	}
+
+	loginQrcode := GetLoginQrcode(sceneId)
+	if loginQrcode == nil {
+		weixinLog.Error("微信登录，二维码超时")
+		SetLoginError(sceneId, "登录失败，二维码超时")
+	} else {
+		thirdAccount, err := services.ThirdAccountService.GetOrCreateByWeixin(openId)
+		if err != nil {
+			weixinLog.Error("微信登录，处理第三方账号时错误", err)
+			SetLoginError(sceneId, "登录失败：01")
+		} else {
+			user, codeErr := services.UserService.SignInByThirdAccount(thirdAccount)
+			if codeErr != nil {
+				weixinLog.Error("微信登录，处理用户信息时错误", codeErr)
+				SetLoginError(sceneId, "登录失败：02")
+			} else {
+				weixinLog.Info("微信登录，成功：", openId)
+				SetLoginSuccess(sceneId, user.Id)
+			}
+		}
+	}
 }
 
 // 已经关注的用户扫描带参数二维码事件

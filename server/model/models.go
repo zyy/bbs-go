@@ -69,6 +69,7 @@ const (
 
 	ThirdAccountTypeGithub = "github"
 	ThirdAccountTypeQQ     = "qq"
+	ThirdAccountTypeWeixin = "weixin"
 )
 
 type User struct {

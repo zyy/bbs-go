@@ -2,12 +2,8 @@ package weixin
 
 import (
 	"sync"
-	"time"
 
 	"github.com/chanxuehong/wechat/mp/core"
-	"github.com/chanxuehong/wechat/mp/qrcode"
-	"github.com/goburrow/cache"
-	"github.com/mlogclub/simple"
 	"github.com/sirupsen/logrus"
 )
 
@@ -47,35 +43,4 @@ func GetServer() *core.Server {
 		serve = core.NewServer("", AppId, Token, EncodingAESKey, msgHandler, errorHandler)
 	})
 	return serve
-}
-
-// 登录二维码，key：sceneId，value：qrcode.TempQrcode
-var qrcodeSceneIdCache = cache.NewLoadingCache(
-	func(key cache.Key) (value cache.Value, e error) {
-		sceneId := key.(string)
-		return qrcode.CreateStrSceneTempQrcode(GetClient(), sceneId, 60*30)
-	},
-	cache.WithMaximumSize(1000),
-	cache.WithExpireAfterAccess(30*time.Minute),
-)
-
-// 创建登录二维码
-func GenerateLoginQrcode() (sceneId string, qr *qrcode.TempQrcode, err error) {
-	sceneId = simple.Uuid()
-	val, e := qrcodeSceneIdCache.Get(sceneId)
-	if e != nil {
-		err = e
-		return
-	}
-	qr = val.(*qrcode.TempQrcode)
-	return
-}
-
-// 创建登录二维码
-func GetLoginQrcode(sceneId string) (*qrcode.TempQrcode, error) {
-	val, err := qrcodeSceneIdCache.Get(sceneId)
-	if err != nil {
-		return nil, err
-	}
-	return val.(*qrcode.TempQrcode), nil
 }

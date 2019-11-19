@@ -134,3 +134,23 @@ func (this *thirdAccountService) GetOrCreateByQQ(code, state string) (*model.Thi
 	}
 	return account, nil
 }
+
+func (this *thirdAccountService) GetOrCreateByWeixin(openId string) (*model.ThirdAccount, error) {
+	account := this.GetThirdAccount(model.ThirdAccountTypeWeixin, openId)
+	if account != nil {
+		return account, nil
+	}
+
+	account = &model.ThirdAccount{
+		UserId:     sql.NullInt64{},
+		ThirdType:  model.ThirdAccountTypeQQ,
+		ThirdId:    openId,
+		CreateTime: simple.NowTimestamp(),
+		UpdateTime: simple.NowTimestamp(),
+	}
+	err := this.Create(account)
+	if err != nil {
+		return nil, err
+	}
+	return account, nil
+}

@@ -2,8 +2,8 @@ package services
 
 import (
 	"database/sql"
-	"strings"
 	"errors"
+	"strings"
 
 	"github.com/jinzhu/gorm"
 	"github.com/mlogclub/simple"
@@ -173,10 +173,16 @@ func (this *userService) SignInByThirdAccount(thirdAccount *model.ThirdAccount) 
 		return user, nil
 	}
 
-	avatar, copyAvatarErr := oss.CopyImage(thirdAccount.Avatar)
-	if copyAvatarErr != nil {
-		logrus.Error("复制第三方头像异常", thirdAccount.Avatar, copyAvatarErr)
-		avatar = thirdAccount.Avatar
+	var (
+		avatar              = thirdAccount.Avatar
+		copyAvatarErr error = nil
+	)
+	if len(thirdAccount.Avatar) > 0 {
+		avatar, copyAvatarErr = oss.CopyImage(thirdAccount.Avatar)
+		if copyAvatarErr != nil {
+			logrus.Error("复制第三方头像异常", thirdAccount.Avatar, copyAvatarErr)
+			avatar = thirdAccount.Avatar
+		}
 	}
 	user = &model.User{
 		Username:   sql.NullString{},
