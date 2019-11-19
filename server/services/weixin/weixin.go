@@ -8,6 +8,7 @@ import (
 	"github.com/chanxuehong/wechat/mp/qrcode"
 	"github.com/goburrow/cache"
 	"github.com/mlogclub/simple"
+	"github.com/sirupsen/logrus"
 )
 
 const (
@@ -16,6 +17,11 @@ const (
 	Token          = "IcoRXFWVkZANT7aKXEl6HFL9ECgZ4Ohz"
 	EncodingAESKey = "7tCEWkYJHnYwAdcyAP2sy1Dv5pGdfb4SRvAPUvfWYWI"
 )
+
+var weixinLog = logrus.WithFields(logrus.Fields{
+	"weixin": true,
+	"appId":  AppId,
+})
 
 var (
 	clientOnce sync.Once
