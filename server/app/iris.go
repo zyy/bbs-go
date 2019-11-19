@@ -68,6 +68,7 @@ func InitIris() {
 		m.Party("/upload").Handle(new(api.UploadController))
 		m.Party("/subject").Handle(new(api.SubjectController))
 		m.Party("/link").Handle(new(api.LinkController))
+		m.Party("/weixin").Handle(new(api.WeixinController))
 	})
 
 	// admin
