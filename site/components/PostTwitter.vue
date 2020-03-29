@@ -414,66 +414,6 @@ export default {
           font-weight: 700;
           cursor: pointer;
         }
-
-        .upload-box {
-          padding: 0;
-          margin: 0;
-          box-sizing: border-box;
-          position: relative;
-          display: block;
-          zoom: 1;
-
-          .upload-img-list {
-            font-size: 0;
-            margin-right: -8px;
-
-            .upload-img-add {
-              background-color: #fff !important;
-              text-align: center;
-
-              i.icon-add {
-                font-size: 30px;
-                color: rgb(221, 221, 221);
-              }
-            }
-
-            .upload-img-item {
-              cursor: pointer;
-              border: 2px dashed #ddd;
-              line-height: 72px;
-              text-align: center;
-
-              display: inline-block;
-              vertical-align: middle;
-              width: 72px;
-              height: 72px;
-              margin: 0 8px 8px 0;
-              background-color: #e8e8e8;
-              background-size: 32px 32px;
-              background-position: 50%;
-              background-repeat: no-repeat;
-              overflow: hidden;
-              position: relative;
-
-              &:hover {
-                i.remove {
-                  font-size: 14px;
-                  font-weight: 700;
-                  color: #fff;
-                  position: absolute;
-                  top: 3px;
-                  right: 3px;
-                  width: 16px;
-                  height: 16px;
-                  line-height: 16px;
-                  text-align: center;
-                  background-color: #ed4040;
-                  border-radius: 50%;
-                }
-              }
-            }
-          }
-        }
       }
     }
   }

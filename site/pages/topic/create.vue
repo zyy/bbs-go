@@ -62,6 +62,50 @@
               </div>
             </div>
 
+            <div class="field">
+              <div class="control">
+                <div class="widget">
+                  <div class="widget-header">
+                    封面图
+                    <i class="iconfont icon-close" />
+                  </div>
+                  <div class="widget-content">
+                    <div class="upload-box size-100">
+                      <form style="display: none;">
+                        <input
+                          ref="imageInput"
+                          @change="handleImageUploadChange"
+                          type="file"
+                          accept="image/*"
+                          multiple="multiple"
+                        />
+                      </form>
+                      <ul class="upload-img-list">
+                        <li
+                          v-for="(image, i) in postForm.imageList"
+                          :key="i"
+                          class="upload-img-item"
+                        >
+                          <img :src="image" />
+                          <i
+                            @click="removeImg(image)"
+                            class="iconfont icon-close remove"
+                          />
+                        </li>
+                        <li
+                          v-if="imageCount < maxImageCount"
+                          @click="handleImageUploadClick"
+                          class="upload-img-item upload-img-add"
+                        >
+                          <i class="iconfont icon-add" />
+                        </li>
+                      </ul>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
             <div class="field is-grouped">
               <div class="control">
                 <a
@@ -115,24 +159,26 @@ export default {
     return {
       nodes,
       postForm: {
-        nodeId: currentNode ? currentNode.nodeId : 0
+        nodeId: currentNode ? currentNode.nodeId : 0,
+        title: '',
+        tags: [],
+        content: '',
+        imageList: []
       }
     }
   },
   data() {
     return {
       publishing: false, // 当前是否正处于发布中...
-      postForm: {
-        nodeId: 0,
-        title: '',
-        tags: [],
-        content: ''
-      }
+      maxImageCount: 9
     }
   },
   computed: {
     user() {
       return this.$store.state.user.current
+    },
+    imageCount() {
+      return this.postForm.imageList ? this.postForm.imageList.length : 0
     }
   },
   mounted() {},
@@ -161,7 +207,8 @@ export default {
           nodeId: me.postForm.nodeId,
           title: me.postForm.title,
           content: me.postForm.content,
-          tags: me.postForm.tags ? me.postForm.tags.join(',') : ''
+          tags: me.postForm.tags ? me.postForm.tags.join(',') : '',
+          imageList: JSON.stringify(me.postForm.imageList)
         })
         this.$refs.mdEditor.clearCache()
         this.$toast.success('提交成功', {
@@ -174,6 +221,48 @@ export default {
         console.error(e)
         me.publishing = false
         this.$toast.error('提交失败：' + (e.message || e))
+      }
+    },
+    handleImageUploadClick() {
+      this.$refs.imageInput.click()
+    },
+    async handleImageUploadChange(ev) {
+      const files = ev.target.files
+      if (!files) return
+
+      await this.uploadFiles(files)
+
+      // 清理文件输入框
+      this.$refs.imageInput.value = null
+    },
+    async uploadFiles(files) {
+      if (files.length === 0) {
+        return
+      }
+
+      if (this.imageCount + files.length > this.maxImageCount) {
+        this.message = '图片数量超过上限'
+        return
+      }
+
+      for (let i = 0; i < files.length; i++) {
+        await this.upload(files[i])
+      }
+    },
+    async upload(file) {
+      try {
+        const formData = new FormData()
+        formData.append('image', file, file.name)
+        const ret = await this.$axios.post('/api/upload', formData)
+        this.postForm.imageList.push(ret.url)
+      } catch (e) {
+        this.message = e.message || e
+      }
+    },
+    removeImg(img) {
+      const index = this.postForm.imageList.indexOf(img)
+      if (index !== -1) {
+        this.postForm.imageList.splice(index, 1)
       }
     }
   },

@@ -115,7 +115,7 @@
                 ></div>
 
                 <figure
-                  v-if="topic.imageList"
+                  v-if="topic.type === 1 && topic.imageList"
                   v-for="image in topic.imageList"
                   :key="image"
                 >
